@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Websockets</title>
+
+    <style>
+        #log{
+            width: 800px;
+            height: 300px;
+            border: 2px solid lightgrey;
+            margin: 0 auto;
+            border-radius: 8px;
+            padding: 15px 10px;
+        }
+        .sendControls{
+            width: 245px;
+            margin: 30px auto;
+        }
+    </style>
+
+</head>
+<body>
+    <div id="log"></div>
+
+    <div class="sendControls">
+        <input type="text" id="messageText" placeholder="Type your message"/>
+        <button>Send</button>
+    </div>
+
+    <script>
+        let name = prompt("What's your name fella?");
+        var sock = new WebSocket("ws://localhost:5001");
+        let log = document.getElementById('log');
+        sock.onopen = function(event){
+            //alert('Socket connected successfully');
+            sock.send(JSON.stringify({
+                type: 'name',
+                data: name
+            }));
+        };
+        sock.onmessage = function(event) {
+            //console.log(event);
+            let json = JSON.parse(event.data);
+            log.innerHTML += json.name +": " +json.data + "<br />";
+        }
+
+        document.querySelector('button').onclick = function(){
+            let text = document.getElementById('messageText').value;
+            sock.send(JSON.stringify({
+                type: 'message',
+                data: text
+            }));
+            log.innerHTML += "You: "+ text + "<br />";
+            document.getElementById('messageText').value = "";
+        }
+    </script>
+</body>
+</html>
